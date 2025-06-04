@@ -5,22 +5,22 @@ import { insertNameGenerationRequestSchema, type NameSuggestion, type DomainAvai
 
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  
+
   // Generate names endpoint
   app.post("/api/generate-names", async (req, res) => {
     try {
       const validatedData = insertNameGenerationRequestSchema.parse(req.body);
-      
+
       // Save the request
       const request = await storage.createNameGenerationRequest(validatedData);
-      
+
       // Generate names based on the description
       const suggestions = await generateNames({
         description: validatedData.description,
         industry: validatedData.industry || undefined,
         nameStyle: validatedData.nameStyle || undefined
       });
-      
+
       // Save generated names to storage (optional for free service)
       const namesToSave = suggestions.map(suggestion => ({
         name: suggestion.name,
@@ -28,9 +28,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         domains: suggestion.domains,
         score: Math.floor(Math.random() * 100) + 1 // Simple scoring
       }));
-      
+
       await storage.saveGeneratedNames(request.id, namesToSave);
-      
+
       res.json({
         requestId: request.id,
         suggestions
@@ -48,7 +48,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const requestId = parseInt(req.params.id);
       const names = await storage.getGeneratedNames(requestId);
-      
+
       res.json(names);
     } catch (error) {
       console.error("Error fetching names:", error);
@@ -60,14 +60,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/check-domain", async (req, res) => {
     try {
       const { domain } = req.body;
-      
+
       if (!domain) {
         return res.status(400).json({ message: "Domain is required" });
       }
 
       // Mock domain checking - in production, use a real API like WhoisXML
       const availability = await checkDomainAvailability(domain);
-      
+
       res.json(availability);
     } catch (error) {
       console.error("Error checking domain:", error);
@@ -83,18 +83,18 @@ async function checkDomainAvailability(baseDomain: string): Promise<DomainAvaila
   // This is a mock implementation. In production, integrate with a real domain API
   const extensions = ['.com', '.io', '.net', '.org', '.co', '.tech', '.design', '.dev'];
   const availability: DomainAvailability[] = [];
-  
+
   for (const ext of extensions) {
     const isAvailable = Math.random() > 0.3; // 70% chance of being available
     const price = isAvailable ? getPriceForExtension(ext) : undefined;
-    
+
     availability.push({
       extension: ext,
       available: isAvailable,
       price
     });
   }
-  
+
   return availability;
 }
 
@@ -109,26 +109,26 @@ function getPriceForExtension(extension: string): string {
     '.design': '$29.99/yr',
     '.dev': '$19.99/yr'
   };
-  
+
   return prices[extension] || '$19.99/yr';
 }
 
 async function generateNames(request: { description: string; industry?: string; nameStyle?: string }): Promise<NameSuggestion[]> {
   const { description, industry, nameStyle } = request;
-  
+
   // Extract keywords from description
   const keywords = extractKeywords(description);
   const suggestions: NameSuggestion[] = [];
-  
+
   // Generate different types of names based on style
   const nameTypes = getNameGenerationStrategies(nameStyle || 'creative');
-  
+
   for (const strategy of nameTypes) {
     const names = strategy(keywords, industry);
     for (const name of names) {
       const domains = await checkDomainAvailability(name.toLowerCase());
       const status = determineNameStatus(domains);
-      
+
       suggestions.push({
         name,
         description: generateNameDescription(name, keywords, industry),
@@ -137,7 +137,7 @@ async function generateNames(request: { description: string; industry?: string; 
       });
     }
   }
-  
+
   // Shuffle and return top suggestions
   return suggestions.sort(() => Math.random() - 0.5).slice(0, 12);
 }
@@ -148,7 +148,7 @@ function extractKeywords(description: string): string[] {
     .replace(/[^\w\s]/g, '')
     .split(/\s+/)
     .filter(word => word.length > 3);
-    
+
   const commonWords = ['that', 'this', 'with', 'from', 'they', 'have', 'will', 'your', 'what', 'when', 'where', 'would', 'there', 'could', 'other'];
   return words.filter(word => !commonWords.includes(word)).slice(0, 10);
 }
@@ -177,7 +177,7 @@ function getNameGenerationStrategies(style: string) {
       (keywords: string[], industry?: string) => generateFounder(keywords)
     ]
   };
-  
+
   return strategies[style as keyof typeof strategies] || strategies.creative;
 }
 
@@ -187,17 +187,26 @@ function generatePortmanteau(keywords: string[]): string[] {
     for (let j = i + 1; j < keywords.length; j++) {
       const word1 = keywords[i];
       const word2 = keywords[j];
-      names.push(capitalize(word1.slice(0, -2) + word2.slice(2)));
-      names.push(capitalize(word2.slice(0, -2) + word1.slice(2)));
+
+      // Multiple blending strategies
+      const blend1 = word1.slice(0, Math.ceil(word1.length / 2)) + word2.slice(Math.floor(word2.length / 2));
+      const blend2 = word2.slice(0, Math.ceil(word2.length / 2)) + word1.slice(Math.floor(word1.length / 2));
+      const blend3 = word1.slice(0, 2) + word2.slice(2);
+      const blend4 = word2.slice(0, 2) + word1.slice(2);
+      const blend5 = word1.slice(0, 3) + word2.slice(-3);
+      const blend6 = word2.slice(0, 3) + word1.slice(-3);
+
+      names.push(capitalize(blend1), capitalize(blend2), capitalize(blend3), 
+                 capitalize(blend4), capitalize(blend5), capitalize(blend6));
     }
   }
-  return names.slice(0, 3);
+  return names.slice(0, 8);
 }
 
 function generatePrefixSuffix(keywords: string[]): string[] {
   const prefixes = ['Pro', 'Smart', 'Quick', 'Meta', 'Ultra', 'Hyper', 'Next', 'Super'];
   const suffixes = ['Lab', 'Hub', 'Core', 'Forge', 'Works', 'Tech', 'Solutions', 'Systems'];
-  
+
   const names: string[] = [];
   keywords.forEach(keyword => {
     prefixes.forEach(prefix => {
@@ -207,7 +216,7 @@ function generatePrefixSuffix(keywords: string[]): string[] {
       names.push(capitalize(keyword) + suffix);
     });
   });
-  
+
   return names.slice(0, 4);
 }
 
@@ -225,71 +234,80 @@ function generateCompound(keywords: string[]): string[] {
 function generateProfessional(keywords: string[], industry?: string): string[] {
   const professionalSuffixes = ['Solutions', 'Systems', 'Technologies', 'Consulting', 'Partners', 'Group'];
   const names: string[] = [];
-  
+
   keywords.forEach(keyword => {
     professionalSuffixes.forEach(suffix => {
       names.push(capitalize(keyword) + ' ' + suffix);
     });
   });
-  
+
   return names.slice(0, 3);
 }
 
 function generateCorporate(keywords: string[]): string[] {
   const corporatePrefixes = ['Global', 'United', 'Premier', 'Elite', 'Advanced'];
   const names: string[] = [];
-  
+
   keywords.forEach(keyword => {
     corporatePrefixes.forEach(prefix => {
       names.push(prefix + ' ' + capitalize(keyword));
     });
   });
-  
+
   return names.slice(0, 2);
 }
 
 function generatePlayful(keywords: string[]): string[] {
   const playfulSuffixes = ['ly', 'ify', 'io', 'ee', 'oo'];
   const names: string[] = [];
-  
+
   keywords.forEach(keyword => {
     playfulSuffixes.forEach(suffix => {
       names.push(capitalize(keyword) + suffix);
     });
   });
-  
+
   return names.slice(0, 3);
 }
 
 function generateRhyming(keywords: string[]): string[] {
-  // Simple rhyming generation
-  const rhymes: Record<string, string[]> = {
-    tech: ['Check', 'Deck', 'Spec'],
-    code: ['Mode', 'Node', 'Road'],
-    data: ['Beta', 'Meta', 'Zeta']
+  const rhymes = {
+    'tech': ['deck', 'spec', 'trek', 'flex'],
+    'data': ['beta', 'meta', 'delta'],
+    'digital': ['vital', 'crystal'],
+    'smart': ['art', 'start', 'heart'],
+    'cloud': ['loud', 'proud'],
+    'web': ['deb', 'zeb'],
+    'app': ['tap', 'map', 'cap', 'snap'],
+    'code': ['mode', 'node', 'load'],
+    'soft': ['loft', 'craft'],
+    'net': ['set', 'get', 'jet', 'met']
   };
-  
+
   const names: string[] = [];
   keywords.forEach(keyword => {
-    const rhymeWords = rhymes[keyword] || [];
-    rhymeWords.forEach(rhyme => {
-      names.push(capitalize(keyword) + rhyme);
-    });
+    const lowerKeyword = keyword.toLowerCase();
+    if (rhymes[lowerKeyword]) {
+      rhymes[lowerKeyword].forEach(rhyme => {
+        names.push(capitalize(keyword) + capitalize(rhyme));
+        names.push(capitalize(rhyme) + capitalize(keyword));
+      });
+    }
   });
-  
-  return names.slice(0, 2);
+
+  return names.slice(0, 6);
 }
 
 function generateTech(keywords: string[]): string[] {
   const techSuffixes = ['Tech', 'Labs', 'AI', 'Digital', 'Cloud', 'Net'];
   const names: string[] = [];
-  
+
   keywords.forEach(keyword => {
     techSuffixes.forEach(suffix => {
       names.push(capitalize(keyword) + suffix);
     });
   });
-  
+
   return names.slice(0, 3);
 }
 
@@ -301,33 +319,76 @@ function generateMinimal(keywords: string[]): string[] {
       names.push(capitalize(keyword.slice(0, 3)) + 'x');
     }
   });
-  
+
   return names.slice(0, 2);
 }
 
 function generateClassic(keywords: string[], industry?: string): string[] {
-  const classicSuffixes = ['& Co', 'Industries', 'Corporation', 'Company'];
+  const prefixes = ['Global', 'Prime', 'Elite', 'Crown', 'Royal', 'Premier', 'Supreme', 'Alpha', 'Mega', 'Ultra'];
+  const suffixes = ['Corp', 'Group', 'Solutions', 'Enterprises', 'Holdings', 'Systems', 'Dynamics', 'Ventures', 'Partners', 'Alliance'];
+
   const names: string[] = [];
-  
-  keywords.forEach(keyword => {
-    classicSuffixes.forEach(suffix => {
-      names.push(capitalize(keyword) + ' ' + suffix);
+  keywords.slice(0, 3).forEach(keyword => {
+    prefixes.slice(0, 3).forEach(prefix => {
+      names.push(`${prefix} ${capitalize(keyword)}`);
+    });
+    suffixes.slice(0, 3).forEach(suffix => {
+      names.push(`${capitalize(keyword)} ${suffix}`);
     });
   });
-  
-  return names.slice(0, 2);
+
+  return names.slice(0, 6);
+}
+
+function generateAcronym(keywords: string[]): string[] {
+  const names: string[] = [];
+  if (keywords.length >= 2) {
+    // Generate acronyms from first letters
+    const acronym = keywords.slice(0, 4).map(word => word.charAt(0).toUpperCase()).join('');
+    names.push(acronym);
+
+    // Add vowels to make pronounceable
+    const vowels = ['a', 'e', 'i', 'o', 'u'];
+    vowels.forEach(vowel => {
+      names.push(acronym + vowel);
+      names.push(vowel + acronym);
+    });
+  }
+  return names.slice(0, 4);
+}
+
+function generateContextual(keywords: string[], industry?: string): string[] {
+  const contextMappings = {
+    'tech': ['Byte', 'Code', 'Pixel', 'Logic', 'Neural', 'Quantum', 'Cyber', 'Digital'],
+    'finance': ['Capital', 'Vault', 'Trade', 'Asset', 'Invest', 'Fund', 'Equity', 'Credit'],
+    'health': ['Care', 'Vital', 'Pulse', 'Remedy', 'Heal', 'Life', 'Wellness', 'Medical'],
+    'retail': ['Market', 'Shop', 'Store', 'Buy', 'Sell', 'Commerce', 'Trade', 'Outlet'],
+    'education': ['Learn', 'Study', 'Teach', 'Know', 'Skill', 'Brain', 'Academy', 'Scholar']
+  };
+
+  const names: string[] = [];
+  const contextWords = contextMappings[industry as keyof typeof contextMappings] || contextMappings.tech;
+
+  keywords.slice(0, 2).forEach(keyword => {
+    contextWords.slice(0, 4).forEach(context => {
+      names.push(`${context}${capitalize(keyword)}`);
+      names.push(`${capitalize(keyword)}${context}`);
+    });
+  });
+
+  return names.slice(0, 8);
 }
 
 function generateFounder(keywords: string[]): string[] {
   const founderNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Davis'];
   const names: string[] = [];
-  
+
   keywords.forEach(keyword => {
     founderNames.forEach(founder => {
       names.push(founder + ' ' + capitalize(keyword));
     });
   });
-  
+
   return names.slice(0, 1);
 }
 
@@ -338,7 +399,7 @@ function capitalize(str: string): string {
 function determineNameStatus(domains: DomainAvailability[]): "available" | "taken" | "premium" | "hot" {
   const comAvailable = domains.find(d => d.extension === '.com')?.available;
   const availableCount = domains.filter(d => d.available).length;
-  
+
   if (comAvailable && availableCount > 6) return 'hot';
   if (comAvailable && availableCount > 4) return 'premium';
   if (availableCount > 2) return 'available';
@@ -353,6 +414,6 @@ function generateNameDescription(name: string, keywords: string[], industry?: st
     `Suitable for ${industry || 'creative'} ventures`,
     `Strong brand for ${keywords[0] || 'digital'} services`
   ];
-  
+
   return descriptions[Math.floor(Math.random() * descriptions.length)];
 }

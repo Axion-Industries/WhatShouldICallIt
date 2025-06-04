@@ -95,7 +95,6 @@ export default function NameGeneratorForm({ onResults }: NameGeneratorFormProps)
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="none">Select industry</SelectItem>
                         <SelectItem value="tech">Technology</SelectItem>
                         <SelectItem value="finance">Finance</SelectItem>
                         <SelectItem value="health">Healthcare</SelectItem>
