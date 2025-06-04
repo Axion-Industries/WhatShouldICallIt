@@ -136,7 +136,7 @@ export default function Terms() {
                 <section>
                   <h2 className="text-2xl font-bold text-foreground mb-4">Governing Law</h2>
                   <p className="text-muted-foreground mb-4">
-                    These Terms are governed by applicable laws, without regard to 
+                    These Terms are governed by the laws of California, United States, without regard to 
                     conflict of law principles.
                   </p>
                 </section>
@@ -144,7 +144,11 @@ export default function Terms() {
                 <section>
                   <h2 className="text-2xl font-bold text-foreground mb-4">Contact Information</h2>
                   <p className="text-muted-foreground">
-                    For questions about these Terms, please contact us through our support page.
+                    For questions about these Terms, contact us at:
+                    <br />
+                    Email: legal@whatshouldlnameit.com
+                    <br />
+                    Address: 123 Innovation Drive, San Francisco, CA 94105
                   </p>
                 </section>
               </div>
