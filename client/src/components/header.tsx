@@ -13,13 +13,13 @@ export default function Header() {
           </div>
           
           <nav className="hidden md:flex space-x-8">
-            <a href="#how-it-works" className="text-muted-foreground hover:text-primary transition-colors">
+            <a href="/how-it-works" className="text-muted-foreground hover:text-primary transition-colors">
               How it works
             </a>
-            <a href="#pricing" className="text-muted-foreground hover:text-primary transition-colors">
+            <a href="/pricing" className="text-muted-foreground hover:text-primary transition-colors">
               Pricing
             </a>
-            <a href="#about" className="text-muted-foreground hover:text-primary transition-colors">
+            <a href="/about" className="text-muted-foreground hover:text-primary transition-colors">
               About
             </a>
           </nav>
@@ -32,13 +32,13 @@ export default function Header() {
             </SheetTrigger>
             <SheetContent>
               <nav className="flex flex-col space-y-4 mt-8">
-                <a href="#how-it-works" className="text-muted-foreground hover:text-primary transition-colors">
+                <a href="/how-it-works" className="text-muted-foreground hover:text-primary transition-colors">
                   How it works
                 </a>
-                <a href="#pricing" className="text-muted-foreground hover:text-primary transition-colors">
+                <a href="/pricing" className="text-muted-foreground hover:text-primary transition-colors">
                   Pricing
                 </a>
-                <a href="#about" className="text-muted-foreground hover:text-primary transition-colors">
+                <a href="/about" className="text-muted-foreground hover:text-primary transition-colors">
                   About
                 </a>
               </nav>
