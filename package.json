@@ -8,8 +8,8 @@
   },
   "scripts": {
     "dev": "NODE_ENV=development tsx server/index.ts",
-    "build": "npx vite build && npx tsc server/index.ts --outDir dist --module ESNext --target ES2022 --moduleResolution bundler --allowImportingTsExtensions false --skipLibCheck true --esModuleInterop true",
-    "start": "NODE_ENV=production node dist/server/index.js",
+    "build": "npx vite build",
+    "start": "NODE_ENV=production tsx server/index.ts",
     "check": "tsc",
     "db:push": "drizzle-kit push",
     "render-build": "npm install && npm run build"
@@ -81,12 +81,12 @@
     "nanoid": "^5.0.0",
     "@vitejs/plugin-react": "^4.3.2",
     "autoprefixer": "^10.4.20",
-    "esbuild": "^0.25.5",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.17",
     "typescript": "5.6.3",
     "vite": "^5.4.14",
-    "@tailwindcss/typography": "^0.5.15"
+    "@tailwindcss/typography": "^0.5.15",
+    "tsx": "^4.19.1"
   },
   "devDependencies": {
     "@types/connect-pg-simple": "^7.0.3",
@@ -98,8 +98,7 @@
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.1",
     "@types/ws": "^8.5.13",
-    "drizzle-kit": "^0.30.4",
-    "tsx": "^4.19.1"
+    "drizzle-kit": "^0.30.4"
   },
   "optionalDependencies": {
     "bufferutil": "^4.0.8"
