@@ -23,7 +23,7 @@ export default function NameGeneratorForm({ onResults }: NameGeneratorFormProps)
     resolver: zodResolver(nameGenerationFormSchema),
     defaultValues: {
       description: "",
-      industry: "tech",
+      industry: "",
       nameStyle: "creative",
     },
   });
@@ -37,7 +37,7 @@ export default function NameGeneratorForm({ onResults }: NameGeneratorFormProps)
       onResults(data.suggestions);
       toast({
         title: "Names Generated!",
-        description: `Found ${data.suggestions.length} creative suggestions for you. Click any name for detailed info and domain purchasing options.`,
+        description: `Found ${data.suggestions.length} creative suggestions for you.`,
       });
     },
     onError: (error) => {

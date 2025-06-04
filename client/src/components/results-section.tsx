@@ -1,9 +1,7 @@
-import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { RefreshCw, Check, X, Star, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sparkles, CheckCircle, XCircle, Star, Flame } from "lucide-react";
-import NameDetailModal from "./name-detail-modal";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import type { NameSuggestion } from "@shared/schema";
 
 interface ResultsSectionProps {
@@ -12,30 +10,18 @@ interface ResultsSectionProps {
 }
 
 export default function ResultsSection({ results, onGenerateMore }: ResultsSectionProps) {
-  const [selectedName, setSelectedName] = useState<NameSuggestion | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  if (!results || results.length === 0) {
-    return null;
-  }
-
-  const handleNameClick = (name: NameSuggestion) => {
-    setSelectedName(name);
-    setIsModalOpen(true);
-  };
-
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'available':
-        return <CheckCircle className="mr-1 h-3 w-3" />;
+        return <Check className="mr-1 h-3 w-3" />;
       case 'taken':
-        return <XCircle className="mr-1 h-3 w-3" />;
+        return <X className="mr-1 h-3 w-3" />;
       case 'premium':
         return <Star className="mr-1 h-3 w-3" />;
       case 'hot':
         return <Flame className="mr-1 h-3 w-3" />;
       default:
-        return <Sparkles className="mr-1 h-3 w-3" />;
+        return <Check className="mr-1 h-3 w-3" />;
     }
   };
 
@@ -50,7 +36,7 @@ export default function ResultsSection({ results, onGenerateMore }: ResultsSecti
       case 'hot':
         return 'Hot';
       default:
-        return 'New';
+        return 'Available';
     }
   };
 
@@ -65,7 +51,7 @@ export default function ResultsSection({ results, onGenerateMore }: ResultsSecti
       case 'hot':
         return 'status-badge-hot';
       default:
-        return 'status-badge-new';
+        return 'status-badge-available';
     }
   };
 
@@ -82,7 +68,6 @@ export default function ResultsSection({ results, onGenerateMore }: ResultsSecti
             <Card 
               key={index}
               className="bg-card shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer border border-border hover:scale-[1.02]"
-              onClick={() => handleNameClick(result)}
             >
               <CardContent className="p-6">
                 <div className="flex items-start justify-between mb-4">
@@ -92,9 +77,9 @@ export default function ResultsSection({ results, onGenerateMore }: ResultsSecti
                     {getStatusText(result.status)}
                   </Badge>
                 </div>
-
+                
                 <p className="text-muted-foreground mb-4">{result.description}</p>
-
+                
                 <div className="space-y-2">
                   {result.domains.slice(0, 2).map((domain, domainIndex) => (
                     <div key={domainIndex} className="flex items-center justify-between text-sm">
@@ -121,12 +106,6 @@ export default function ResultsSection({ results, onGenerateMore }: ResultsSecti
           </Button>
         </div>
       </div>
-
-      <NameDetailModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        name={selectedName}
-      />
     </section>
   );
 }
