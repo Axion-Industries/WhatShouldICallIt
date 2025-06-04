@@ -21,7 +21,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         nameStyle: validatedData.nameStyle || undefined
       });
       
-      // Save generated names to storage (optional for free service)
+      // Save generated names to storage
       const namesToSave = suggestions.map(suggestion => ({
         name: suggestion.name,
         description: suggestion.description,
