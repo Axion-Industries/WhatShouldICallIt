@@ -23,7 +23,7 @@ export default function NameGeneratorForm({ onResults }: NameGeneratorFormProps)
     resolver: zodResolver(nameGenerationFormSchema),
     defaultValues: {
       description: "",
-      industry: "",
+      industry: "tech",
       nameStyle: "creative",
     },
   });
