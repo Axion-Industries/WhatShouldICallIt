@@ -45,28 +45,32 @@ export default function NameDetails() {
       price: "Free - $20/month",
       features: ["Instant deployment", "Custom domains", "Auto-scaling", "Built-in database"],
       recommended: true,
-      icon: <Zap className="h-6 w-6" />
+      icon: <Zap className="h-6 w-6" />,
+      url: "https://replit.com"
     },
     {
       name: "Vercel", 
       description: "Perfect for frontend applications",
       price: "Free - $20/month",
       features: ["Edge network", "Preview deployments", "Analytics", "Serverless functions"],
-      icon: <Globe className="h-6 w-6" />
+      icon: <Globe className="h-6 w-6" />,
+      url: "https://vercel.com"
     },
     {
       name: "Netlify",
       description: "Great for static sites and JAMstack",
       price: "Free - $19/month", 
       features: ["CDN", "Form handling", "Split testing", "Edge functions"],
-      icon: <Server className="h-6 w-6" />
+      icon: <Server className="h-6 w-6" />,
+      url: "https://netlify.com"
     },
     {
       name: "DigitalOcean",
       description: "Flexible cloud hosting solution",
       price: "$5 - $100+/month",
       features: ["VPS hosting", "Managed databases", "Load balancers", "Monitoring"],
-      icon: <Shield className="h-6 w-6" />
+      icon: <Shield className="h-6 w-6" />,
+      url: "https://digitalocean.com"
     }
   ];
 
@@ -122,7 +126,11 @@ export default function NameDetails() {
                           {domain.available ? (
                             <div>
                               <div className="font-medium text-green-600">{domain.price}</div>
-                              <Button size="sm" className="mt-1">
+                              <Button 
+                                size="sm" 
+                                className="mt-1"
+                                onClick={() => window.open(`https://www.namecheap.com/domains/registration/results/?domain=${nameData.name}${domain.extension}`, '_blank')}
+                              >
                                 Register
                               </Button>
                             </div>
@@ -203,7 +211,11 @@ export default function NameDetails() {
                                 <li key={featureIndex}>• {feature}</li>
                               ))}
                             </ul>
-                            <Button size="sm" className="w-full mt-3">
+                            <Button 
+                              size="sm" 
+                              className="w-full mt-3"
+                              onClick={() => window.open(service.url, '_blank')}
+                            >
                               <ExternalLink className="mr-2 h-3 w-3" />
                               Visit {service.name}
                             </Button>
