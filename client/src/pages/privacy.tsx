@@ -138,11 +138,7 @@ export default function Privacy() {
                 <section>
                   <h2 className="text-2xl font-bold text-foreground mb-4">Contact Us</h2>
                   <p className="text-muted-foreground">
-                    If you have questions about this Privacy Policy, please contact us at:
-                    <br />
-                    Email: privacy@whatshouldlnameit.com
-                    <br />
-                    Address: 123 Innovation Drive, San Francisco, CA 94105
+                    If you have questions about this Privacy Policy, please contact us through our support page.
                   </p>
                 </section>
               </div>
