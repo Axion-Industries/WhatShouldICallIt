@@ -6,7 +6,7 @@ export default function Footer() {
           <div>
             <div className="flex items-center space-x-2 mb-4">
               <div className="text-primary text-xl">✨</div>
-              <span className="text-lg font-bold">Nameinator</span>
+              <span className="text-lg font-bold">WhatShouldINameIt?</span>
             </div>
             <p className="text-muted-foreground">
               Find the perfect name for your next big idea with AI-powered suggestions and domain checking.
@@ -42,7 +42,7 @@ export default function Footer() {
         </div>
         
         <div className="border-t border-muted-foreground mt-8 pt-8 text-center text-muted-foreground">
-          <p>&copy; 2024 Nameinator. All rights reserved.</p>
+          <p>&copy; 2024 WhatShouldINameIt? All rights reserved.</p>
         </div>
       </div>
     </footer>
