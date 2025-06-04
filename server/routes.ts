@@ -56,36 +56,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Check domain availability endpoint
-  app.post("/api/check-domain", async (req, res) => {
-    try {
-      const { domain } = req.body;
-
-      if (!domain) {
-        return res.status(400).json({ message: "Domain is required" });
-      }
-
-      // Mock domain checking - in production, use a real API like WhoisXML
-      const availability = await checkDomainAvailability(domain);
-
-      res.json(availability);
-    } catch (error) {
-      console.error("Error checking domain:", error);
-      res.status(500).json({ message: "Failed to check domain availability" });
-    }
-  });
-
   const httpServer = createServer(app);
   return httpServer;
 }
 
-async function checkDomainAvailability(baseDomain: string): Promise<DomainAvailability[]> {
+async function generateDomainExtensions(baseDomain: string): Promise<DomainAvailability[]> {
   // This is a mock implementation. In production, integrate with a real domain API
   const extensions = ['.com', '.io', '.net', '.org', '.co', '.tech', '.design', '.dev'];
   const availability: DomainAvailability[] = [];
 
   for (const ext of extensions) {
-    const isAvailable = Math.random() > 0.3; // 70% chance of being available
+    const isAvailable = true; //Math.random() > 0.3; // 70% chance of being available
     const price = isAvailable ? getPriceForExtension(ext) : undefined;
 
     availability.push({
@@ -130,19 +111,19 @@ async function generateNames(request: { description: string; industry?: string; 
   const nameTypes = getNameGenerationStrategies(nameStyle || 'creative');
 
   for (const strategy of nameTypes) {
-    const names = strategy(keywords, industry);
-    for (const name of names) {
-      const domains = await checkDomainAvailability(name.toLowerCase());
-      const status = determineNameStatus(domains);
+      const names = strategy(keywords, industry);
+      for (const name of names) {
+        const domains = await generateDomainExtensions(name.toLowerCase());
+        const status = "available"; // Always show as available
 
-      suggestions.push({
-        name,
-        description: generateNameDescription(name, keywords, industry),
-        domains,
-        status
-      });
+        suggestions.push({
+          name,
+          description: generateNameDescription(name, keywords, industry),
+          domains,
+          status
+        });
+      }
     }
-  }
 
   // Shuffle and return top suggestions
   return suggestions.sort(() => Math.random() - 0.5).slice(0, 12);
@@ -400,16 +381,6 @@ function generateFounder(keywords: string[]): string[] {
 
 function capitalize(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-}
-
-function determineNameStatus(domains: DomainAvailability[]): "available" | "taken" | "premium" | "hot" {
-  const comAvailable = domains.find(d => d.extension === '.com')?.available;
-  const availableCount = domains.filter(d => d.available).length;
-
-  if (comAvailable && availableCount > 6) return 'hot';
-  if (comAvailable && availableCount > 4) return 'premium';
-  if (availableCount > 2) return 'available';
-  return 'taken';
 }
 
 function generateNameDescription(name: string, keywords: string[], industry?: string): string {

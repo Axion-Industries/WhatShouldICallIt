@@ -1,4 +1,3 @@
-
 import { useLocation } from "wouter";
 import { ArrowLeft, ExternalLink, Server, Globe, Zap, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,14 +9,14 @@ import type { NameSuggestion } from "@shared/schema";
 
 export default function NameDetails() {
   const [, setLocation] = useLocation();
-  
+
   // Get name data from sessionStorage
   const getNameData = (): NameSuggestion => {
     const stored = sessionStorage.getItem('selectedName');
     if (stored) {
       return JSON.parse(stored);
     }
-    
+
     // Fallback data if no stored data
     return {
       name: "TechForge",
@@ -77,7 +76,7 @@ export default function NameDetails() {
   return (
     <div className="min-h-screen bg-muted">
       <Header />
-      
+
       <main className="pt-16 pb-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           <Button 
@@ -118,25 +117,18 @@ export default function NameDetails() {
                       >
                         <div>
                           <span className="font-medium">{nameData.name}{domain.extension}</span>
-                          <div className="text-sm text-muted-foreground">
-                            {domain.available ? "Available" : "Unavailable"}
-                          </div>
                         </div>
                         <div className="text-right">
-                          {domain.available ? (
-                            <div>
-                              <div className="font-medium text-green-600">{domain.price}</div>
-                              <Button 
-                                size="sm" 
-                                className="mt-1"
-                                onClick={() => window.open(`https://www.namecheap.com/domains/registration/results/?domain=${nameData.name}${domain.extension}`, '_blank')}
-                              >
-                                Register
-                              </Button>
-                            </div>
-                          ) : (
-                            <span className="text-red-600 font-medium">Taken</span>
-                          )}
+                          <div>
+                            <div className="font-medium text-green-600">{domain.price}</div>
+                            <Button 
+                              size="sm" 
+                              className="mt-1"
+                              onClick={() => window.open(`https://www.namecheap.com/domains/registration/results/?domain=${nameData.name}${domain.extension}`, '_blank')}
+                            >
+                              Register
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -156,21 +148,21 @@ export default function NameDetails() {
                       Choose one of the available domains above and register it through a domain registrar like Namecheap, GoDaddy, or Google Domains.
                     </p>
                   </div>
-                  
+
                   <div className="space-y-3">
                     <h4 className="font-semibold">Step 2: Choose a Hosting Service</h4>
                     <p className="text-muted-foreground">
                       Select a hosting provider that fits your needs and budget from the options below.
                     </p>
                   </div>
-                  
+
                   <div className="space-y-3">
                     <h4 className="font-semibold">Step 3: Connect Your Domain</h4>
                     <p className="text-muted-foreground">
                       Update your domain's DNS settings to point to your hosting provider. This usually involves updating A records or CNAME records.
                     </p>
                   </div>
-                  
+
                   <div className="space-y-3">
                     <h4 className="font-semibold">Step 4: Deploy Your Website</h4>
                     <p className="text-muted-foreground">
@@ -230,7 +222,7 @@ export default function NameDetails() {
           </div>
         </div>
       </main>
-      
+
       <Footer />
     </div>
   );

@@ -93,8 +93,8 @@ export default function ResultsSection({ results, onGenerateMore }: ResultsSecti
                   {result.domains.slice(0, 4).map((domain, domainIndex) => (
                     <div key={domainIndex} className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">{domain.extension}</span>
-                      <span className={domain.available ? "text-success font-medium" : "text-destructive font-medium"}>
-                        {domain.available ? domain.price : 'Unavailable'}
+                      <span className="text-success font-medium">
+                        {domain.price}
                       </span>
                     </div>
                   ))}
