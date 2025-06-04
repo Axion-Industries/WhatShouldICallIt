@@ -37,7 +37,7 @@ export default function NameGeneratorForm({ onResults }: NameGeneratorFormProps)
       onResults(data.suggestions);
       toast({
         title: "Names Generated!",
-        description: `Found ${data.suggestions.length} creative suggestions for you.`,
+        description: `Found ${data.suggestions.length} creative suggestions for you. Click any name for detailed info and domain purchasing options.`,
       });
     },
     onError: (error) => {

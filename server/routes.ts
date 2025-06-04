@@ -80,12 +80,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
 }
 
 async function checkDomainAvailability(baseDomain: string): Promise<DomainAvailability[]> {
-  // This is a mock implementation. In production, integrate with a real domain API
   const extensions = ['.com', '.io', '.net', '.org', '.co', '.tech', '.design', '.dev'];
   const availability: DomainAvailability[] = [];
 
   for (const ext of extensions) {
-    const isAvailable = Math.random() > 0.3; // 70% chance of being available
+    const fullDomain = baseDomain + ext;
+    let isAvailable = false;
+
+    try {
+      // Use a simple DNS lookup to check if domain exists
+      // This is a basic check - for production, use a proper domain API
+      const response = await fetch(`https://dns.google/resolve?name=${fullDomain}&type=A`);
+      const data = await response.json();
+      
+      // If no answer or NXDOMAIN, domain might be available
+      isAvailable = !data.Answer || data.Answer.length === 0 || data.Status === 3;
+    } catch (error) {
+      // If DNS lookup fails, assume available for now
+      isAvailable = true;
+    }
+
     const price = isAvailable ? getPriceForExtension(ext) : undefined;
 
     availability.push({
@@ -123,6 +137,12 @@ async function generateNames(request: { description: string; industry?: string; 
   // Generate different types of names based on style
   const nameTypes = getNameGenerationStrategies(nameStyle || 'creative');
 
+  // Add more generation strategies for smarter AI
+  nameTypes.push(
+    (keywords: string[], industry?: string) => generateAcronym(keywords),
+    (keywords: string[], industry?: string) => generateContextual(keywords, industry)
+  );
+
   for (const strategy of nameTypes) {
     const names = strategy(keywords, industry);
     for (const name of names) {
@@ -138,8 +158,8 @@ async function generateNames(request: { description: string; industry?: string; 
     }
   }
 
-  // Shuffle and return top suggestions
-  return suggestions.sort(() => Math.random() - 0.5).slice(0, 12);
+  // Shuffle and return more suggestions
+  return suggestions.sort(() => Math.random() - 0.5).slice(0, 20);
 }
 
 function extractKeywords(description: string): string[] {
