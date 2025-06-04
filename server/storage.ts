@@ -56,8 +56,10 @@ export class MemStorage implements IStorage {
   async createNameGenerationRequest(request: InsertNameGenerationRequest): Promise<NameGenerationRequest> {
     const id = this.currentRequestId++;
     const nameRequest: NameGenerationRequest = { 
-      ...request, 
       id,
+      description: request.description,
+      industry: request.industry || null,
+      nameStyle: request.nameStyle || null,
       createdAt: new Date()
     };
     this.nameRequests.set(id, nameRequest);

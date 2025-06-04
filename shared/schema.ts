@@ -35,6 +35,9 @@ export const insertNameGenerationRequestSchema = createInsertSchema(nameGenerati
   description: true,
   industry: true,
   nameStyle: true,
+}).extend({
+  industry: z.string().optional(),
+  nameStyle: z.string().optional(),
 });
 
 export const nameGenerationFormSchema = z.object({

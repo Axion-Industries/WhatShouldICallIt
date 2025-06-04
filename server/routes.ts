@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertNameGenerationRequestSchema, type NameSuggestion, type DomainAvailability } from "@shared/schema";
-import { generateNames } from "./lib/name-generator";
+
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -15,7 +15,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const request = await storage.createNameGenerationRequest(validatedData);
       
       // Generate names based on the description
-      const suggestions = await generateNames(validatedData);
+      const suggestions = await generateNames({
+        description: validatedData.description,
+        industry: validatedData.industry || undefined,
+        nameStyle: validatedData.nameStyle || undefined
+      });
       
       // Save generated names to storage
       const namesToSave = suggestions.map(suggestion => ({

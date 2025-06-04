@@ -69,18 +69,18 @@
 
 @layer components {
   .status-badge-available {
-    @apply bg-success text-success-foreground;
+    @apply bg-green-500 text-white;
   }
   
   .status-badge-taken {
-    @apply bg-destructive text-destructive-foreground;
+    @apply bg-red-500 text-white;
   }
   
   .status-badge-premium {
-    @apply bg-secondary text-secondary-foreground;
+    @apply bg-emerald-500 text-white;
   }
   
   .status-badge-hot {
-    @apply bg-accent text-accent-foreground;
+    @apply bg-amber-500 text-white;
   }
 }
