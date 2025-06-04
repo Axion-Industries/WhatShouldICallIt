@@ -2,6 +2,7 @@ import { RefreshCw, Check, X, Star, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useLocation } from "wouter";
 import type { NameSuggestion } from "@shared/schema";
 
 interface ResultsSectionProps {
@@ -10,6 +11,13 @@ interface ResultsSectionProps {
 }
 
 export default function ResultsSection({ results, onGenerateMore }: ResultsSectionProps) {
+  const [, setLocation] = useLocation();
+
+  const handleCardClick = (result: NameSuggestion, index: number) => {
+    // Store the selected name data in sessionStorage for the details page
+    sessionStorage.setItem('selectedName', JSON.stringify(result));
+    setLocation(`/name/${index}`);
+  };
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'available':
@@ -68,6 +76,7 @@ export default function ResultsSection({ results, onGenerateMore }: ResultsSecti
             <Card 
               key={index}
               className="bg-card shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer border border-border hover:scale-[1.02]"
+              onClick={() => handleCardClick(result, index)}
             >
               <CardContent className="p-6">
                 <div className="flex items-start justify-between mb-4">
@@ -81,7 +90,7 @@ export default function ResultsSection({ results, onGenerateMore }: ResultsSecti
                 <p className="text-muted-foreground mb-4">{result.description}</p>
                 
                 <div className="space-y-2">
-                  {result.domains.slice(0, 2).map((domain, domainIndex) => (
+                  {result.domains.slice(0, 4).map((domain, domainIndex) => (
                     <div key={domainIndex} className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">{domain.extension}</span>
                       <span className={domain.available ? "text-success font-medium" : "text-destructive font-medium"}>
@@ -89,6 +98,11 @@ export default function ResultsSection({ results, onGenerateMore }: ResultsSecti
                       </span>
                     </div>
                   ))}
+                  {result.domains.length > 4 && (
+                    <div className="text-center text-sm text-muted-foreground pt-2">
+                      +{result.domains.length - 4} more domains
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

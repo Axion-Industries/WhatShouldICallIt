@@ -105,9 +105,15 @@ function getPriceForExtension(extension: string): string {
     '.net': '$14.99/yr',
     '.org': '$14.99/yr',
     '.co': '$29.99/yr',
-    '.tech': '$24.99/yr',
-    '.design': '$29.99/yr',
-    '.dev': '$19.99/yr'
+    '.tech': '$49.99/yr',
+    '.design': '$54.99/yr',
+    '.dev': '$12.99/yr',
+    '.app': '$19.99/yr',
+    '.xyz': '$9.99/yr',
+    '.online': '$24.99/yr',
+    '.store': '$59.99/yr',
+    '.site': '$24.99/yr',
+    '.website': '$24.99/yr'
   };
 
   return prices[extension] || '$19.99/yr';
