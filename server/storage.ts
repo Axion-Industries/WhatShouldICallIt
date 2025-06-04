@@ -7,7 +7,7 @@ import {
   type NameGenerationRequest,
   type InsertNameGenerationRequest,
   type GeneratedName
-} from "@shared/schema";
+} from "../shared/schema.js";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
