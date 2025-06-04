@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useForm } from "react";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Sparkles, Loader2 } from "lucide-react";
@@ -18,7 +18,7 @@ interface NameGeneratorFormProps {
 
 export default function NameGeneratorForm({ onResults }: NameGeneratorFormProps) {
   const { toast } = useToast();
-
+  
   const form = useForm<NameGenerationForm>({
     resolver: zodResolver(nameGenerationFormSchema),
     defaultValues: {
@@ -78,7 +78,7 @@ export default function NameGeneratorForm({ onResults }: NameGeneratorFormProps)
                 </FormItem>
               )}
             />
-
+            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -95,7 +95,7 @@ export default function NameGeneratorForm({ onResults }: NameGeneratorFormProps)
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="other">Select industry</SelectItem>
+                        <SelectItem value="none">Select industry</SelectItem>
                         <SelectItem value="tech">Technology</SelectItem>
                         <SelectItem value="finance">Finance</SelectItem>
                         <SelectItem value="health">Healthcare</SelectItem>
@@ -108,7 +108,7 @@ export default function NameGeneratorForm({ onResults }: NameGeneratorFormProps)
                   </FormItem>
                 )}
               />
-
+              
               <FormField
                 control={form.control}
                 name="nameStyle"

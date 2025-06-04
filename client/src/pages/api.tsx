@@ -144,7 +144,7 @@ export default function API() {
                   <CardContent className="p-6">
                     <h3 className="text-lg font-semibold mb-3">JavaScript</h3>
                     <div className="bg-muted-foreground/10 rounded-lg p-3 mb-4">
-                      <code className="text-sm">fetch('/api/generate-names', {'{...}'})</code>
+                      <code className="text-sm">fetch('/api/generate-names', {...})</code>
                     </div>
                     <Button variant="outline" size="sm" asChild>
                       <a href="https://github.com/username/project" target="_blank" rel="noopener noreferrer">
