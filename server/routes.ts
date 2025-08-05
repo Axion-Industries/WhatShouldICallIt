@@ -124,17 +124,17 @@ async function generateNames(request: { description: string; industry?: string; 
   let cohereNames: string[] = [];
   try {
     const cohere = getCohereClient();
-    const prompt = `You are a world-class brand naming expert. Generate 10 highly creative, unique, and memorable business or product names for the following description. Avoid generic words, cliches, and simple prefix/suffix tricks. Each name should be original, easy to pronounce, and suitable for branding. Do NOT just add words like 'Quick', 'Max', 'Fast', 'Pro', etc.\n\nDescription: ${description}\nIndustry: ${industry || "any"}\nStyle: ${nameStyle || "creative"}\nNames (one per line):`;
+    const prompt = `You are a world-class brand naming expert. Generate 10 highly creative, unique, and memorable business or product names for the following description. For each name, provide a short, catchy tagline (separated by a dash). Avoid generic words, cliches, and simple prefix/suffix tricks. Each name should be original, easy to pronounce, and suitable for branding. Do NOT just add words like 'Quick', 'Max', 'Fast', 'Pro', etc. Vary the style (modern, playful, professional, etc.) and make sure the names are distinct from each other.\n\nEXAMPLES:\nDescription: A social network for book lovers\nIndustry: Social Media\nStyle: Playful\nNames (one per line):\n1. Booksy - Where stories connect people\n2. LitLoop - Your reading circle online\n3. TomeTribe - Unite over great reads\n\nDescription: AI-powered personal finance assistant\nIndustry: Fintech\nStyle: Modern\nNames (one per line):\n1. Mintellect - Smarter money moves\n2. FundFlow - Your finances, in motion\n3. WealthWise - AI for your wallet\n\nDescription: ${description}\nIndustry: ${industry || "any"}\nStyle: ${nameStyle || "creative"}\nNames (one per line):`;
     const cohereRes = await cohere.generate({
       model: "command-r-plus",
       prompt,
-      maxTokens: 80,
-      temperature: 1.3,
+      maxTokens: 200,
+      temperature: 1.35,
       stopSequences: ["\n\n"],
       numGenerations: 1
     });
     if (cohereRes.generations && cohereRes.generations.length > 0) {
-      // Try to extract names from the text
+      // Try to extract names and taglines from the text
       const text: string = cohereRes.generations[0].text;
       cohereNames = text
         .split("\n")
