@@ -2,6 +2,10 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage.js";
 import { insertNameGenerationRequestSchema, type NameSuggestion, type DomainAvailability } from "../shared/schema.js";
+import cohere from "cohere-ai";
+
+// Initialize Cohere with the provided API key
+cohere.init("LvGkhXbAWXeu01te1FDUK8kkACideK9E8eQlVOko");
 
 export async function registerRoutes(app: Express): Promise<Server> {
 
@@ -104,28 +108,54 @@ async function generateNames(request: { description: string; industry?: string; 
 
   // Extract keywords from description
   const keywords = extractKeywords(description);
-  const suggestions: NameSuggestion[] = [];
+  let suggestions: NameSuggestion[] = [];
 
-  // Generate different types of names based on style
-  const nameTypes = getNameGenerationStrategies(nameStyle || 'creative');
-
-  for (const strategy of nameTypes) {
-      const names = strategy(keywords, industry);
-      for (const name of names) {
-        const domains = await generateDomainExtensions(name.toLowerCase());
-        const status = "available"; // Always show as available
-
-        suggestions.push({
-          name,
-          description: generateNameDescription(name, keywords, industry),
-          domains,
-          status
-        });
-      }
+  // 1. Get names from Cohere (AI-powered)
+  let cohereNames: string[] = [];
+  try {
+    const prompt = `Generate 8 creative, short, catchy, and brandable business or product names for the following description. Avoid generic words.\n\nDescription: ${description}\nIndustry: ${industry || "any"}\nStyle: ${nameStyle || "creative"}\nNames:`;
+    const cohereRes = await cohere.generate({
+      model: "command-r-plus",
+      prompt,
+      max_tokens: 64,
+      temperature: 1.2,
+      stop_sequences: ["\n\n"],
+      num_generations: 1
+    });
+    if (cohereRes.generations && cohereRes.generations.length > 0) {
+      // Try to extract names from the text
+      const text = cohereRes.generations[0].text;
+      cohereNames = text
+        .split("\n")
+        .map(line => line.replace(/^[-*\d.\s]+/, "").trim())
+        .filter(line => line.length > 2 && /^[A-Za-z0-9]/.test(line));
     }
+  } catch (err) {
+    console.error("Cohere API error:", err);
+  }
 
-  // Shuffle and return top suggestions
-  return suggestions.sort(() => Math.random() - 0.5).slice(0, 12);
+  // 2. Get names from existing strategies
+  const nameTypes = getNameGenerationStrategies(nameStyle || 'creative');
+  let strategyNames: string[] = [];
+  for (const strategy of nameTypes) {
+    strategyNames.push(...strategy(keywords, industry));
+  }
+
+  // 3. Merge, dedupe, and limit
+  const allNames = Array.from(new Set([...cohereNames, ...strategyNames])).slice(0, 12);
+
+  for (const name of allNames) {
+    const domains = await generateDomainExtensions(name.toLowerCase());
+    const status = "available";
+    suggestions.push({
+      name,
+      description: generateNameDescription(name, keywords, industry),
+      domains,
+      status
+    });
+  }
+
+  return suggestions;
 }
 
 function extractKeywords(description: string): string[] {
