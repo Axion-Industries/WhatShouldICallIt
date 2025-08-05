@@ -3,16 +3,25 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage.js";
 import { insertNameGenerationRequestSchema, type NameSuggestion, type DomainAvailability } from "../shared/schema.js";
 
+
 import { CohereClientV2 } from "cohere-ai";
 
-// Initialize Cohere client with the provided API key
-const cohere = new CohereClientV2({ token: "LvGkhXbAWXeu01te1FDUK8kkACideK9E8eQlVOko" });
+function getCohereClient() {
+  const apiKey = process.env.LvGkhXbAWXeu01te1FDUK8kkACideK9E8eQlVOko;
+  if (!apiKey) {
+    throw new Error("Cohere API key not set. Please set COHERE_API_KEY in your environment.");
+  }
+  return new CohereClientV2({ token: apiKey });
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
 
   // Generate names endpoint
   app.post("/api/generate-names", async (req, res) => {
     try {
+      if (!process.env.COHERE_API_KEY) {
+        return res.status(500).json({ message: "Cohere API key not set. Please set COHERE_API_KEY in your environment." });
+      }
       const validatedData = insertNameGenerationRequestSchema.parse(req.body);
 
       // Save the request
@@ -114,13 +123,13 @@ async function generateNames(request: { description: string; industry?: string; 
   // 1. Get names from Cohere (AI-powered)
   let cohereNames: string[] = [];
   try {
-    const prompt = `Generate 8 creative, short, catchy, and brandable business or product names for the following description. Avoid generic words.\n\nDescription: ${description}\nIndustry: ${industry || "any"}\nStyle: ${nameStyle || "creative"}\nNames:`;
-    // Use the new Cohere SDK method for text generation
+    const cohere = getCohereClient();
+    const prompt = `You are a world-class brand naming expert. Generate 10 highly creative, unique, and memorable business or product names for the following description. Avoid generic words, cliches, and simple prefix/suffix tricks. Each name should be original, easy to pronounce, and suitable for branding. Do NOT just add words like 'Quick', 'Max', 'Fast', 'Pro', etc.\n\nDescription: ${description}\nIndustry: ${industry || "any"}\nStyle: ${nameStyle || "creative"}\nNames (one per line):`;
     const cohereRes = await cohere.generate({
       model: "command-r-plus",
       prompt,
-      maxTokens: 64,
-      temperature: 1.2,
+      maxTokens: 80,
+      temperature: 1.3,
       stopSequences: ["\n\n"],
       numGenerations: 1
     });
@@ -136,15 +145,16 @@ async function generateNames(request: { description: string; industry?: string; 
     console.error("Cohere API error:", err);
   }
 
-  // 2. Get names from existing strategies
-  const nameTypes = getNameGenerationStrategies(nameStyle || 'creative');
-  let strategyNames: string[] = [];
-  for (const strategy of nameTypes) {
-    strategyNames.push(...strategy(keywords, industry));
+  // 2. (Optional) Add fallback strategies if Cohere returns nothing
+  let allNames: string[] = cohereNames;
+  if (allNames.length === 0) {
+    // fallback: use portmanteau and compound only (no generic prefix/suffix)
+    const nameTypes = [generatePortmanteau, generateCompound];
+    for (const strategy of nameTypes) {
+      allNames.push(...strategy(keywords));
+    }
+    allNames = Array.from(new Set(allNames)).slice(0, 10);
   }
-
-  // 3. Merge, dedupe, and limit
-  const allNames = Array.from(new Set([...cohereNames, ...strategyNames])).slice(0, 12);
 
   for (const name of allNames) {
     const domains = await generateDomainExtensions(name.toLowerCase());
