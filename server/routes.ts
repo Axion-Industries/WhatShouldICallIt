@@ -2,10 +2,11 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage.js";
 import { insertNameGenerationRequestSchema, type NameSuggestion, type DomainAvailability } from "../shared/schema.js";
-import cohere from "cohere-ai";
 
-// Initialize Cohere with the provided API key
-cohere.init("LvGkhXbAWXeu01te1FDUK8kkACideK9E8eQlVOko");
+import { CohereClientV2 } from "cohere-ai";
+
+// Initialize Cohere client with the provided API key
+const cohere = new CohereClientV2({ token: "LvGkhXbAWXeu01te1FDUK8kkACideK9E8eQlVOko" });
 
 export async function registerRoutes(app: Express): Promise<Server> {
 
@@ -114,21 +115,22 @@ async function generateNames(request: { description: string; industry?: string; 
   let cohereNames: string[] = [];
   try {
     const prompt = `Generate 8 creative, short, catchy, and brandable business or product names for the following description. Avoid generic words.\n\nDescription: ${description}\nIndustry: ${industry || "any"}\nStyle: ${nameStyle || "creative"}\nNames:`;
+    // Use the new Cohere SDK method for text generation
     const cohereRes = await cohere.generate({
       model: "command-r-plus",
       prompt,
-      max_tokens: 64,
+      maxTokens: 64,
       temperature: 1.2,
-      stop_sequences: ["\n\n"],
-      num_generations: 1
+      stopSequences: ["\n\n"],
+      numGenerations: 1
     });
     if (cohereRes.generations && cohereRes.generations.length > 0) {
       // Try to extract names from the text
-      const text = cohereRes.generations[0].text;
+      const text: string = cohereRes.generations[0].text;
       cohereNames = text
         .split("\n")
-        .map(line => line.replace(/^[-*\d.\s]+/, "").trim())
-        .filter(line => line.length > 2 && /^[A-Za-z0-9]/.test(line));
+        .map((line: string) => line.replace(/^[-*\d.\s]+/, "").trim())
+        .filter((line: string) => line.length > 2 && /^[A-Za-z0-9]/.test(line));
     }
   } catch (err) {
     console.error("Cohere API error:", err);
@@ -287,7 +289,7 @@ function generatePlayful(keywords: string[]): string[] {
 }
 
 function generateRhyming(keywords: string[]): string[] {
-  const rhymes = {
+  const rhymes: Record<string, string[]> = {
     'tech': ['deck', 'spec', 'trek', 'flex'],
     'data': ['beta', 'meta', 'delta'],
     'digital': ['vital', 'crystal'],
@@ -301,10 +303,10 @@ function generateRhyming(keywords: string[]): string[] {
   };
 
   const names: string[] = [];
-  keywords.forEach(keyword => {
+  keywords.forEach((keyword: string) => {
     const lowerKeyword = keyword.toLowerCase();
     if (rhymes[lowerKeyword]) {
-      rhymes[lowerKeyword].forEach(rhyme => {
+      rhymes[lowerKeyword].forEach((rhyme: string) => {
         names.push(capitalize(keyword) + capitalize(rhyme));
         names.push(capitalize(rhyme) + capitalize(keyword));
       });
